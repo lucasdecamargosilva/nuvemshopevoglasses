@@ -1281,15 +1281,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone })
                 });
-                const d = await r.json();
-                const used = Math.max(d.phone_count || 0, d.ip_count || 0, d.count || 0);
-                const restantes = Math.max(0, 3 - used);
-                if (restantes > 0) {
-                    const _txt = restantes + (restantes === 1 ? ' prova restante hoje' : ' provas restantes hoje');
-                    _els.forEach(el => { el.textContent = _txt; el.classList.remove('is-warn'); });
-                } else {
-                    _els.forEach(el => { el.textContent = 'Limite de 3 provas atingido — pague R$1 via PIX para mais uma.'; el.classList.add('is-warn'); });
-                }
+                await r.json();
+                // Provas restantes ocultas pra Evo Glasses (sem limite)
+                _els.forEach(el => { el.textContent = ''; el.classList.remove('is-warn'); });
             } catch(_) { _els.forEach(el => { el.textContent = ''; el.classList.remove('is-warn'); }); }
         }
         phoneInput.addEventListener('input', () => {
@@ -1612,11 +1606,9 @@
                     body: JSON.stringify({ phone })
                 });
                 const data = await resp.json();
-                if (data.limited) {
-                    genBtn.disabled = false;
-                    createPixAndPoll();
-                    return;
-                }
+                // Limite desativado pra Evo Glasses — nunca cai no PIX
+                // if (data.limited) { genBtn.disabled = false; createPixAndPoll(); return; }
+                void data;
             } catch (_) {
                 // se o check falhar, deixa gerar (evita bloquear por erro de rede)
             }
